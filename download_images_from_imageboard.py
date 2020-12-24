@@ -2,6 +2,11 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
+def update_progress(progress):
+    print('\r[{0}{1}] {2}%'.format('#'*(progress),'-'*(100-progress), progress),end = '\r')
+
+
+
 site = 'https://2ch.hk'
 board = '/sf/'
 
@@ -15,12 +20,13 @@ for element in elements:
 	if url is not None:
 		urls.append(url)
 
-print(urls)
-
+progress = 0
 for url in urls:
+	progress = progress + 1
+	update_progress(int(100.0 * (progress / len(urls))))
 	filename = re.search(r'/([\w_-]+[.](jpg|gif|png))$', url)
 	if not filename:
-		print("Regex didn't match with the url: {}".format(url))
+		#print("Regex didn't match with the url: {}".format(url))
 		continue
 	with open(filename.group(1), 'wb') as f:
 		if 'http' not in url:
@@ -28,5 +34,8 @@ for url in urls:
             	# if it is provide the base url which also happens 
             	# to be the site variable atm. 
 			url = '{}{}'.format(site, url)
+		#print('Downloading '  + url)
 		response = requests.get(url)
 		f.write(response.content)
+print()
+print("Finished")
